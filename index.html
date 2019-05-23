@@ -8,6 +8,308 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Kalam|Laila|Patrick+Hand+SC" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script>
+    alert("Let the animation complete. You won't be able to select another card until it does!");
+alert("Share your score in the comments! Any suggestions to improve this is also appreciated.");
+
+$(document).ready(function() {
+  var first = "";
+  var second = "";
+  var cr = 0;
+  var cc = 0;
+  var fsrc = "";
+  var ssrc = "";
+  var fr = 0;
+  var fc = 0;
+  var sr = 0;
+  var sc = 0;
+  var moves = 0;
+  var timeTaken = 45;
+  var solved = 0;
+  var x = "";
+  var cur = "";
+  $('#moves-value').text(moves);
+  $('#time-value').text(timeTaken);
+  $('#solved-value').text(solved);
+  $('#board').hide();
+  $('#final-score').hide();
+  var order = [];
+  for(var i = 1; i <= 6; i++) {
+    order.push(i);
+    order.push(i);
+  }
+  for(var i = order.length - 1; i >= 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = order[i];
+    order[i] = order[j];
+    order[j] = temp;
+  }
+  $('.place').each(function(index) {
+    $(this).html(`<img src="https://kartikkrishnan13.github.io/memory-game/Images/${order[index]}.png" class="card">`);
+  });
+  $('.card').css('visibility', 'hidden');
+
+  $('#start').click(function() {
+    $('#instructions').hide();
+    $('#board').show();
+    x = setInterval(function() {
+      seconds = timeTaken%60;
+      minutes = Math.floor(timeTaken/60);
+      $('#time-value').text(timeTaken);
+      if(timeTaken == 0) {
+        clearInterval(x);
+        gameover();
+      }
+      else {
+        timeTaken--;
+      }
+    }, 1000);
+  });
+
+  $('#board').on('click', '.place', function() {
+    cr = Number(this.id[2]);
+    cc = Number(this.id[4]);
+    moves++;
+    $('#moves-value').text(moves);
+    if(fr == 0 && fc == 0) {
+      $('.card').parent().css('pointer-events', 'none');
+      fr = cr;
+      fc = cc;
+      first = $(`#m-${fr}-${fc}`);
+      first.css('background-color', 'fuchsia');
+      first.find('img').css('visibility', 'visible');
+      first.addClass('show-it')
+      .on('animationend', function() {
+        first.off('animationend');
+        first.removeClass('show-it');
+        $('.card').parent().css('pointer-events', 'auto');
+      });
+      fsrc = first.find('img').attr('src');
+    }
+    else if(cr != fr || cc != fc) {
+      $('.card').parent().css('pointer-events', 'none');
+      sr = cr;
+      sc = cc;
+      second = $(`#m-${sr}-${sc}`);
+      second.css('background-color', 'fuchsia');
+      second.find('img').css('visibility', 'visible');
+      second.addClass('show-it');
+      ssrc = second.find('.card').attr('src');
+      if(fsrc == ssrc) {
+        second.on('animationend', function() {
+          second.off('animationend');
+          second.removeClass('show-it');
+          solved++;
+          $('#solved-value').text(solved);
+          $("#solved").addClass("shake")
+          .on('animationend', function() {
+            $('#solved').off('animationend');
+            $("#solved").removeClass("shake");
+            $('.place').css('background-color', 'wheat');
+            if(solved == 6) {
+              clearInterval(x);
+              gameover();
+            }
+            $('.card').parent().css('pointer-events', 'auto');
+          });
+        });
+        first.find('img').addClass('done').removeClass('card');
+        first.css({'pointer-events': 'none', 'opacity': '0.75'});
+        second.find('img').addClass('done').removeClass('card');
+        second.css({'pointer-events': 'none', 'opacity': '0.75'});
+      }
+      else {
+        second.on('animationend', function() {
+          second.off('animationend');
+          second.removeClass('show-it');
+          first.add(second).addClass('hide-it')
+          .on('animationend', function() {
+            first.add(second).off('animationend');
+            first.add(second).removeClass('hide-it')
+            .find('.card').css('visibility', 'hidden');
+            $('.place').css('background-color', 'wheat');
+            $('.card').parent().css('pointer-events', 'auto');
+          });
+        });
+      }
+      fr = 0;
+      fc = 0;
+      sr = 0;
+      sc = 0;
+    }
+  });
+
+  function gameover() {
+    var result = "";
+    if(solved == 6) {
+      result = "YOU ARE A GENIUS!!!";
+    }
+    else if(solved == 5) {
+      result = "YOU ARE INTELLIGENT!!";
+    }
+    else if(solved == 4) {
+      result = "YOU ARE SMART!";
+    }
+    else if(solved <= 3) {
+      result = "YOU NEED MORE PRACTICE...";
+    }
+    $('#final-score').text(result);
+    $('#final-score').show();
+    $('.place').css('pointer-events', 'none');
+  }
+});
+
+    </script>
+    <style>
+     body {
+  background-color: lavender;
+}
+
+#final-score {
+  text-align: center;
+  font-family: 'Kalam', cursive;
+  font-size: 30px;
+  font-weight: bold;
+  background-color: firebrick;
+  color: white;
+}
+
+#panel {
+  font-family: 'Patrick Hand SC', cursive;
+  text-align: center;
+  font-size: 20px;
+  background-color: firebrick;
+  display: flex;
+  justify-content: space-around;
+  margin: auto;
+  margin-bottom: 20px;
+  color: white;
+}
+
+#moves-value, #time-value, #solved-value {
+  font-family: 'Kalam', cursive;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+#instructions {
+  font-family: 'Laila', serif;
+  font-size: 20px;
+  font-weight: bold;
+  width: 90%;
+  text-align: center;
+  margin: auto;
+}
+
+.btn {
+  text-align: center;
+  margin: auto;
+  margin-top: 20px;
+}
+
+button {
+  font-family: 'Patrick Hand SC', cursive;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  box-shadow: 0 3px 6px firebrick, 3px 0 6px firebrick, 0 -3px 6px firebrick, -3px 0 6px firebrick;
+  background-color: firebrick;
+  color: white;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+}
+
+.place {
+  text-align: center;
+  box-shadow: 0 3px 6px red, 3px 0 6px red, 0 -3px 6px red, -3px 0 6px red;
+  width: 20%;
+  border-radius: 10%;
+  padding: 5px;
+  margin: 10px;
+  background-color: wheat;
+}
+
+.card {
+  width: 100%;
+}
+
+.done {
+  width: 100%;
+}
+
+
+.shake {
+    animation: attention 0.8s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+}
+
+@keyframes attention {
+  0%, 100% {
+    transform: rotate(0deg);
+    transform-origin: 50% 0;
+  }
+  10% {
+    transform: rotate(2deg);
+  }
+  20%, 40%, 60% {
+    transform: rotate(-4deg);
+  }
+  30%, 50%, 70% {
+    transform: rotate(4deg);
+  }
+  80% {
+    transform: rotate(-2deg);
+  }
+  90% {
+    transform: rotate(2deg);
+  }
+}
+
+.show-it {
+    animation: slit-show 0.5s ease-out both;
+}
+
+@keyframes slit-show {
+  0% {
+    transform: translateZ(-800px) rotate3d(1, 1, 0, 90deg);
+    animation-timing-function: ease-in;
+    opacity: 0;
+  }
+  54% {
+    transform: translateZ(-160px) rotate3d(1, 1, 0, 87deg);
+    animation-timing-function: ease-in-out;
+    opacity: 1;
+  }
+  100% {
+    transform: translateZ(0) rotate3d(1, 1, 0, 0);
+    animation-timing-function: ease-out;
+  }
+}
+
+.hide-it {
+  animation: slit-hide 0.5s ease-in both;
+  animation-delay: 0.25s;
+}
+
+@keyframes slit-hide {
+  0% {
+    transform: translateZ(0) rotate3d(1, 1, 0, 0);
+    opacity: 1;
+  }
+  54% {
+    transform: translateZ(-160px) rotate3d(1, 1, 0, 87deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateZ(-800px) rotate3d(1, 1, 0, 90deg);
+    opacity: 0;
+  }
+}
+
+    </style>
     <title>The Memory Game</title>
   </head>
   <body>
